@@ -1,0 +1,16 @@
+<button (click)="login()" type="button" *ngIf="!user">Login</button>
+<button (click)="fetchUserInfo('v1.0')" type="button" *ngIf="user">Call Graph's v1.0/me API</button>
+<button (click)="fetchUserInfo('beta')" type="button" *ngIf="user">Call Graph's beta/me API</button><button (click)="logout()" type="button" *ngIf="user">Logout</button>
+<h3 *ngIf="user">
+    Hello {{ user.name }}
+</h3>
+<code *ngIf="userInfo">
+    {{ userInfo | json }}
+</code>
+<strong *ngIf="loginFailed">
+  Login unsuccessful
+</strong>
+
+
+
+<router-outlet></router-outlet>
