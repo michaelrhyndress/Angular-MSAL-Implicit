@@ -1,0 +1,33 @@
+// /*------------------------------------*\
+//     VARIABLES
+// \*------------------------------------*/
+
+@import "vars-colors";
+
+$golden-ratio: 1.61803398875;
+
+// START BREAKPOINTS
+$screen-sm-min: 576px !default; // Small tablets and large smartphones (landscape view)
+$screen-md-min: 768px !default; // Small tablets (portrait view)
+$screen-lg-min: 992px !default; // Tablets and small desktops
+$screen-xl-min: 1200px !default;// Large tablets and desktops
+// END BREAKPOINTS
+
+// FONTS
+$font-family: Helvetica, sans-serif !default;
+$font-size-base: 14px !default;
+$line-height-base: $golden-ratio * .7 !default;
+
+/* START FLUID TYPOGRAPHY */
+$min-width: 320px !default;
+$max-width: 1200px !default;
+$min-font: $font-size-base !default;
+$max-font: $font-size-base * $golden-ratio !default;
+
+$mod-1: $golden-ratio * .7 !default; // mobile
+$mod-2: $golden-ratio !default; // desktop
+/*END FLUID TYPOGRAPHY */
+
+// ANIMATION
+$animation-duration : unit-length(1000 / ($golden-ratio*2), ms) !default;
+$animation-timing   : ease !default;

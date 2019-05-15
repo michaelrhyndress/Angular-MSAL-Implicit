@@ -6,11 +6,17 @@ import { LogLevel } from "msal";
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { GraphService } from './services/graph.service';
+import { GraphService } from './core/services/graph.service';
+import { HeaderComponent } from './core/layout/header/header.component';
+import { FooterComponent } from './core/layout/footer/footer.component';
+import { GetStartedSectionComponent } from './pages/homepage/get-started-section/get-started-section.component';
+import { DesignDevelopSectionComponent } from './pages/homepage/design-develop-section/design-develop-section.component';
+import { SpeedOfBusinessSectionComponent } from './pages/homepage/speed-of-business-section/speed-of-business-section.component';
 
 
 export function loggerCallback(logLevel, message, piiEnabled) {
   console.log("client logging" + message);
+
 }
 
 export const protectedResourceMap: [string, string[]][] = [[
@@ -21,15 +27,20 @@ export const protectedResourceMap: [string, string[]][] = [[
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HeaderComponent,
+    FooterComponent,
+    GetStartedSectionComponent,
+    DesignDevelopSectionComponent,
+    SpeedOfBusinessSectionComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     MsalModule.forRoot({
-      clientID: '25d67fe8-9411-4b43-9837-80dad6083305',
-      authority: "https://login.microsoftonline.com/c3e32f53-cb7f-4809-968d-1cc4ccc785fe/",
+      clientID: 'cc37e8ed-6061-4ac6-a149-9ba4e0f6e46e',
+      authority: "https://login.microsoftonline.com/800ae9e0-3603-4498-a242-cb7187447855/",
       validateAuthority: true,
       redirectUri: "http://localhost:4200/",
       cacheLocation: "localStorage",
@@ -37,7 +48,6 @@ export const protectedResourceMap: [string, string[]][] = [[
       navigateToLoginRequestUrl: true,
       popUp: false,
       consentScopes: ["user.read"],
-      unprotectedResources: ["https://www.microsoft.com/en-us/"],
       protectedResourceMap: protectedResourceMap,
       logger: loggerCallback,
       correlationId: '1234',

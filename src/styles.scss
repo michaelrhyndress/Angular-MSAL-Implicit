@@ -1,1 +1,53 @@
 /* You can add global styles to this file, and also import other style files */
+@import "assets/styles/helpers";
+@import "assets/styles/functions";
+@import "assets/styles/mixins";
+@import "assets/styles/normalize";
+@import "assets/styles/typography";
+@import "assets/styles/vars";
+@import "assets/styles/vars-colors";
+
+html,body {
+	min-height: 100vh;
+}
+
+html {
+	@include fluid-type($min-width, $max-width, $min-font, $max-font);
+	line-height: $line-height-base;
+	font-family: $font-family;
+	font-style: normal;
+	font-kerning: normal;
+	-webkit-font-smoothing: antialiased;
+	animation-duration: $animation-duration;
+	animation-timing-function: $animation-timing;
+    background-color: $color-grey-light;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+
+    a {
+        color: $color-primary;
+        text-decoration: none;
+        
+        &:hover, &:focus {
+            color: $color-primary-alt;
+        }
+    }
+
+    .contain {
+		max-width: $max-width;
+		margin: 0 auto;
+		padding: 0 15px;
+		position: relative;
+    }
+    
+    //H1-4 fluid font
+    @for $i from 1 through 4 {
+        h#{$i} {
+            font-size: pow($mod-1, (5-$i)) * 1rem; 
+            @include fluid-type($min-width, $max-width, pow($mod-1, (5-$i)) * $min-font, pow($mod-2, (5-$i)) * $min-font);
+        }
+    }
+}

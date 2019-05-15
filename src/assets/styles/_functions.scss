@@ -1,0 +1,208 @@
+/*
+  Create a polygon
+  @param {Number} $points
+  @param {Number} $startPoint
+  @returns {string}
+*/
+@function polygon($points, $startPoint: 0) {
+    $angle: (360deg / $points);
+    $coords: '';
+    @for $point from $startPoint through ($points + $startPoint - 1) {
+        $pointAngle: $angle * $point;
+        $x: 50% + (percentage(sin($pointAngle)) / 2);
+        $y: 50% - (percentage(cos($pointAngle)) / 2);
+        $coords: $coords + $x + ' ' + $y;
+        @if $point !=$points + $startPoint - 1 {
+            $coords: $coords + ', ';
+        }
+        $point: $point + 1;
+    }
+    $polygon: 'polygon(' + $coords + ')';
+    @return unquote($polygon);
+}
+
+
+
+/*
+  Calculate the exponent
+  @param {Number} $number
+  @param {Number} $exponent
+  @returns {Number} The exponent of $number
+*/
+@function pow($number, $exponent) {
+  $value: 1;
+
+  @if $exponent > 0 {
+    @for $i from 1 through $exponent {
+      $value: $value * $number;
+    }
+  } @else if $exponent < 0 {
+    @for $i from 1 through -$exponent {
+      $value: $value / $number;
+    }
+  }
+
+  @return $value;
+}
+
+
+/*
+	Calculate the least square fit linear regression of provided values
+	@param {map} $map - A map of viewport width and size value combinations
+	@return Linear equation as a calc() function
+	@example
+	  $map: (576: 24, 768: 24, 992: 34)
+	  font-size: leastSquaresFit($map)
+*/
+@function leastSquaresFit($map) {
+    // Get the number of provided breakpoints
+    $length: length(map-keys($map));
+    // Error if the number of breakpoints is < 2
+    @if ($length < 2) {
+        @error "leastSquaresFit() $map must be at least 2 values"
+    }
+    // Calculate the Means
+    $resTotal: 0;
+    $valueTotal: 0;
+    @each $res,
+    $value in $map {
+        $resTotal: $resTotal + $res;
+        $valueTotal: $valueTotal + $value;
+    }
+    $resMean: $resTotal / $length;
+    $valueMean: $valueTotal / $length;
+    // Calculate some other stuff
+    $multipliedDiff: 0;
+    $squaredDiff: 0;
+    @each $res,
+    $value in $map {
+        // Differences from means
+        $resDiff: $res - $resMean;
+        $valueDiff: $value - $valueMean;
+        // Sum of multiplied differences
+        $multipliedDiff: $multipliedDiff + ($resDiff * $valueDiff);
+        // Sum of squared resolution differences
+        $squaredDiff: $squaredDiff + ($resDiff * $resDiff);
+    }
+    // Calculate the Slope
+    $m: $multipliedDiff / $squaredDiff;
+    // Calculate the Y-Intercept
+    $b: $valueMean - ($m * $resMean);
+    // Return the CSS calc equation
+    @return calc(#{$m * 100}vw + #{$b}px);
+}
+
+
+
+/*
+	Removes the unit (e.g. px, em, rem) from a value, returning the number only.
+	@param {Number} $num - Number to strip unit from.
+	@returns {Number} The same number, sans unit.
+*/
+@function strip-unit($value) {
+	@return $value / ($value * 0 + 1);
+}
+
+
+
+/*
+Round a number to specified digits
+
+@param  {Number} $number - A number to round
+@param  {Number} $digits - Digits to output
+@param  {String} $mode - (round|ceil|floor) How to round a number
+@return {Number} - A rounded number
+@example SCSS
+    decimal-round(0.333)    => 0
+    decimal-round(0.333, 1) => 0.3
+    decimal-round(0.333, 2) => 0.33
+    decimal-round(0.666)    => 1
+    decimal-round(0.666, 1) => 0.7
+    decimal-round(0.666, 2) => 0.67
+*/
+
+@function decimal-round ($number, $digits: 0, $mode: round) {
+    $n: 1;
+    // $number must be a number
+    @if type-of($number) != number {
+        @warn '#{ $number } is not a number.';
+        @return $number;
+    }
+    // $digits must be a unitless number
+    @if type-of($digits) != number {
+        @warn '#{ $digits } is not a number.';
+        @return $number;
+    } @else if not unitless($digits) {
+        @warn '#{ $digits } has a unit.';
+        @return $number;
+    }
+    @for $i from 1 through $digits {
+        $n: $n * 10;
+    }
+    @if $mode == round {
+        @return round($number * $n) / $n;
+    } @else if $mode == ceil {
+        @return ceil($number * $n) / $n;
+    } @else if $mode == floor {
+        @return floor($number * $n) / $n;
+    } @else {
+        @warn '#{ $mode } is undefined keyword.';
+        @return $number;
+    }
+}
+
+/*
+Ceil a number to specified digits.
+@param  {Number} $number - A number to round
+@param  {Number} $digits - Digits to output
+@return {Number} - A ceiled number
+@example SCSS
+    decimal-ceil(0.333)    => 1
+    decimal-ceil(0.333, 1) => 0.4
+    decimal-ceil(0.333, 2) => 0.34
+    decimal-ceil(0.666)    => 1
+    decimal-ceil(0.666, 1) => 0.7
+    decimal-ceil(0.666, 2) => 0.67
+*/
+@function decimal-ceil ($number, $digits: 0) {
+    @return decimal-round($number, $digits, ceil);
+}
+
+/*
+	Floor a number to specified digits.
+	@param  {Number} $number - A number to round
+	@param  {Number} $digits - Digits to output
+	@return {Number} - A floored number
+	@example SCSS
+	    decimal-floor(0.333)    => 0
+	    decimal-floor(0.333, 1) => 0.3
+	    decimal-floor(0.333, 2) => 0.33
+	    decimal-floor(0.666)    => 0
+	    decimal-floor(0.666, 1) => 0.6
+	    decimal-floor(0.666, 2) => 0.66
+*/
+
+@function decimal-floor ($number, $digits: 0) {
+    @return decimal-round($number, $digits, floor);
+}
+
+
+
+/*
+	CASTING A STRING TO A NUMBER
+	@param {Number} $number
+	@param {Number} $unit
+	@return {Number} - A number with units
+*/
+@function unit-length($number, $unit) {
+    $strings: 'px' 'cm' 'mm' '%' 'ch' 'pica' 'in' 'em' 'rem' 'pt' 'pc' 'ex' 'vw' 'vh' 'vmin' 'vmax' 'ms';
+    $units:   1px  1cm  1mm  1%  1ch  1pica  1in  1em  1rem  1pt  1pc  1ex  1vw  1vh  1vmin  1vmax 1ms;
+    $index: index($strings, $unit);
+
+    @if not $index {
+        @warn "Invalid unit `#{$unit}`.";
+        @return false;
+    }
+
+    @return $number * nth($units, $index);
+}

@@ -1,0 +1,75 @@
+@mixin fluid-type($min-vw, $max-vw, $min-font-size, $max-font-size) {
+  $u1: unit($min-vw);
+  $u2: unit($max-vw);
+  $u3: unit($min-font-size);
+  $u4: unit($max-font-size);
+
+  @if $u1 == $u2 and $u1 == $u3 and $u1 == $u4 {
+    & {
+      font-size: $min-font-size;
+      @media screen and (min-width: $min-vw) {
+        font-size: calc(#{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} * ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)}));
+      }
+      @media screen and (min-width: $max-vw) {
+        font-size: $max-font-size;
+      }
+    }
+  }
+}
+
+
+// responsive manager
+// @define                {mixin} used to provide cleaner method of accessing breakpoints
+// @param @required $args {map}                ($from: _, $to: _, $media-type: _)
+// @param $media-type     {String}             (all | print | screen | speech)
+// @param $from           {String, cssValue}   min-width
+// @param $to             {String, cssValue}   max-width
+// @example 
+//    #myElement {
+//       width: 500px // default
+//       @include respond-to($to: 'small') { width: 300px } // responsive from 0 to 'small' breakpoint
+//    }
+@mixin respond-to($args...) {
+   // define defaults
+   $args: keywords($args);
+   $from: 0px;
+   $media-type: 'screen';
+   $to: 0px;
+
+   // find if using different media type
+   @if map-has-key($args, 'media-type') {
+      $media-type: map-get($args, 'media-type');
+      $args: map-remove($args, $media-type);
+   }   
+   // find min-width
+   @if map-has-key($args, 'from') {
+      $from: map-get($args, 'from');
+      $args: map-remove($args, 'from');
+      $from: $from + 1px;
+   }
+
+   // find max-width
+   @if map-has-key($args, 'to') {
+      $to: map-get($args, 'to');
+      $args: map-remove($args, 'to');
+      
+      @media #{$media-type} and (min-width: #{$from}) and (max-width: #{$to}) {
+         @content;
+      }
+   }
+   @else {
+      @if $from == 0px and $to == 0px {
+         // didn't set values, or making a screen type media query
+         @warn 'min and max widths are set to 0 or weren`t provided. Are you sure you wanted to just make a @media {screen-type} {} query?';
+         @media #{$media-type} {
+            @content;
+         }
+      }
+      @else {
+         // media query should only have min-width
+         @media #{$media-type} and (min-width: #{$from}) {
+            @content;
+         }
+      }    
+   }
+}
